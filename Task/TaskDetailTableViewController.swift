@@ -10,13 +10,16 @@ import UIKit
 
 class TaskDetailTableViewController: UITableViewController {
     
-    // MARK: - Outlets
-    
+    // MARK: -Outlets
+
     @IBOutlet weak var nameTextField: UITextField!
-    
+   
     @IBOutlet weak var notesTextField: UITextField!
-    
+   
     @IBOutlet weak var dueTextField: UITextField!
+    
+   
+    
     
     var task: Task?
     
@@ -32,12 +35,7 @@ class TaskDetailTableViewController: UITableViewController {
     
     
     // MARK: - Table view data source
-    
-    
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 0
-    }
+
     
     
     // MARK: - Actions
@@ -47,12 +45,14 @@ class TaskDetailTableViewController: UITableViewController {
         navigationController?.popViewControllerAnimated(true)
     }
     
+    @IBAction func cancelButtonTapped(sender: AnyObject) {
+        navigationController?.popViewControllerAnimated(true)
+    }
+    
+    
     func updateWithTask(task: Task) {
         
-        
-        
-        
-    }
+        }
     
     func updateTask() {
         

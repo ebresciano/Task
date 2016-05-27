@@ -2,73 +2,96 @@
 //  TaskListTableViewController.swift
 //  Task
 //
-//  Created by Eva Marie Bresciano on 5/25/16.
+//  Created by Eva Marie Bresciano on 5/26/16.
 //  Copyright © 2016 DevMountain. All rights reserved.
 //
 
 import UIKit
 import CoreData
 
-class TaskListTableViewController: UITableViewController {
-    
-    
+class TaskListTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-          }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        tableView.reloadData()
     }
 
-    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
+
     // MARK: - Table view data source
     
+    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        guard let sections = TaskController.sharedInstance.fetchedResultsController.sections else {
+            return 0 }
+        return sections.count
+    }
+
+
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return TaskController.sharedInstance.tasksArray.count
+        guard let sections = TaskController.sharedInstance.fetchedResultsController.sections else
+        {return 0}
+        return sections[section].numberOfObjects
     }
-    
-    
+
+   
+   
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("taskListCell", forIndexPath: indexPath)
-        let task = TaskController.sharedInstance.tasksArray[indexPath.row]
+        let cell = tableView.dequeueReusableCellWithIdentifier("ButtonTableViewCell", forIndexPath: indexPath)
+        guard let task = TaskController.sharedInstance.fetchedResultsController.objectAtIndexPath(indexPath) as? Task else { return UITableViewCell()}
         cell.textLabel?.text = task.name
-        cell.updateWithTask(task: Task)
+
         return cell
-        }
-    
-    // Override to support editing the table view.
-     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-     if editingStyle == .Delete {
-        let task = TaskController.sharedInstance.tasksArray[indexPath.row]
-        TaskController.sharedInstance.removeTask(task)
-     tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-     } else if editingStyle == .Insert {
-          }
-     }
-    
-    // MARK: - Actions
- 
-    
-    
-    // MARK: - Navigation
-    
-     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "cellToDetail"{
-            let taskDVC = segue.destinationViewController as? TaskDetailTableViewController
-            if let indexPath = tableView.indexPathForSelectedRow {
-            let task = TaskController.sharedInstance.tasksArray[indexPath.row]
-                taskDVC?.task = task
-     
-     }
-        }
-    
     }
+    
+    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        guard let sections = TaskController.sharedInstance.fetchedResultsController.sections,
+            index = Int(sections[section].name) else {return nil}
+        if index == 0 {
+            return "isComplete"}
+        else { return "Complete"}
+    }
+
+
+
+    /*
+    // Override to support conditional editing of the table view.
+    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        // Return false if you do not want the specified item to be editable.
+        return true
+    }
+    */
+    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        if editingStyle == .Delete {
+            guard let task = TaskController.sharedInstance.fetchedResultsController.objectAtIndexPath(indexPath) as? Task else {return}
+            TaskController.sharedInstance.removeTask(task)
+        }
+    }
+
+    /*
+    // Override to support rearranging the table view.
+    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
+
+    }
+    */
+
+    /*
+    // Override to support conditional rearranging of the table view.
+    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        // Return false if you do not want the item to be re-orderable.
+        return true
+    }
+    */
+
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        if segue.identifier == "cellToDetail" {
+            guard let indexPath = tableView.indexPathForSelectedRow else {return}
+            let destinationVC = segue.destinationViewController as? TaskDetailTableViewController
+            let task = TaskController.sharedInstance.fetchedResultsController.objectAtIndexPath(indexPath) as? Task
+            destinationVC?.task = task
+        }
+    }
+
 }

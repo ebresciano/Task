@@ -11,9 +11,9 @@ import CoreData
 
 class TaskController {
     
+    let fetchedResultsController: NSFetchedResultsController
+    
     static let sharedInstance = TaskController()
-    
-    
     
     var tasksArray: [Task] {
         
@@ -22,24 +22,8 @@ class TaskController {
         
         return (try? moc.executeFetchRequest(request)) as? [Task] ?? []
         
-
     }
     
-    func fetchTasks() -> [Task] {
-        
-        return mockTasks
-    }
-    
-    var mockTasks:[Task] {
-        if let task1 = Task(name: "Eat berries", notes: "all colors", due: nil),
-            task2 = Task(name: "Play badminton", notes: "win.", due: NSDate()),
-            task3 = Task(name: "Feed Pippin", notes: "Pellets, apple, clover", due: nil) {
-            return [task1, task2, task3]
-        } else {
-            return []
-        }
-        
-        }
     
     let request = NSFetchRequest(entityName: "Task")
     let moc = Stack.sharedStack.managedObjectContext
@@ -47,17 +31,15 @@ class TaskController {
     // return (try? moc.executeFetchRequest(request)) as? [Task] ?? []
     
     
-    
-    var completedTask: [Task] {
-        return tasksArray.filter{$0.isComplete.boolValue}
-    }
-    
-    var incompleteTask: [Task] {
-        return tasksArray.filter{!$0.isComplete.boolValue}
-        
-    }
-    
+     
     init() {
+        let request = NSFetchRequest(entityName: "Task")
+        let sortDescriptor1 = NSSortDescriptor(key: "isComplete", ascending: false)
+        let sortDescriptor2 = NSSortDescriptor(key: "due", ascending: false)
+        request.sortDescriptors = [sortDescriptor1, sortDescriptor2]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext:
+            Stack.sharedStack.managedObjectContext, sectionNameKeyPath: "isComplete", cacheName: nil)
+        _ = try? fetchedResultsController.performFetch()
         
     }
     
@@ -86,7 +68,7 @@ class TaskController {
             print("There was a problem saving to persistent storage")
             
         }
-
+        
         
     }
     
